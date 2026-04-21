@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DBus Donostia</title>
+
+  <!-- PWA: iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="DBus" />
+
+  <!-- Theme -->
+  <meta name="theme-color" content="#1a73e8" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1>🚌 DBus Donostia</h1>
+    <p class="subtitle">Real-time bus arrivals</p>
+  </header>
+
+  <main>
+    <section class="stop-selector">
+      <label for="stop-input">Bus stop</label>
+      <div class="input-row">
+        <input
+          id="stop-input"
+          type="text"
+          list="stops-list"
+          placeholder="Type a stop name…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="notify-btn" title="Enable notifications">🔔</button>
+      </div>
+      <datalist id="stops-list"></datalist>
+      <p id="stop-status" class="hint"></p>
+    </section>
+
+    <section class="arrivals-section" hidden>
+      <div class="arrivals-header">
+        <h2 id="arrivals-title">Next buses</h2>
+        <span id="refresh-indicator" class="refresh-dot" title="Refreshing…"></span>
+      </div>
+      <div id="arrivals-board"></div>
+      <p id="last-updated" class="hint"></p>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

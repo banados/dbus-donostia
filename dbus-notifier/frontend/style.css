@@ -1,0 +1,324 @@
+/* style.css — DBus Donostia — mobile-first, dark-mode friendly */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --brand:      #1a73e8;
+  --brand-dark: #1558b0;
+  --bg:         #f5f7fa;
+  --surface:    #ffffff;
+  --text:       #1a1a2e;
+  --text-muted: #6b7280;
+  --border:     #e2e8f0;
+  --urgent:     #dc2626;
+  --soon:       #d97706;
+  --ok:         #16a34a;
+  --radius:     12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:         #0f172a;
+    --surface:    #1e293b;
+    --text:       #f1f5f9;
+    --text-muted: #94a3b8;
+    --border:     #334155;
+  }
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ---- Header ---- */
+
+header {
+  background: var(--brand);
+  color: #fff;
+  padding: 1.25rem 1rem 1rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+header .subtitle {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 0.15rem;
+}
+
+/* ---- Main ---- */
+
+main {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---- Stop selector ---- */
+
+.stop-selector {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stop-selector label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-row input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 48px; /* large tap target */
+}
+
+.input-row input:focus {
+  border-color: var(--brand);
+}
+
+#notify-btn {
+  padding: 0 0.9rem;
+  font-size: 1.4rem;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 48px;
+  min-width: 48px;
+  transition: background 0.15s;
+}
+
+#notify-btn:hover {
+  background: var(--border);
+}
+
+/* ---- Arrivals section ---- */
+
+.arrivals-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.arrivals-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.arrivals-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Spinning refresh dot */
+.refresh-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.refresh-dot.spinning {
+  opacity: 1;
+  animation: pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.5); opacity: 0.5; }
+}
+
+/* ---- Arrival cards ---- */
+
+#arrivals-board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.arrival-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--ok);
+  overflow: hidden;
+}
+
+.arrival-card.soon  { border-left-color: var(--soon); }
+.arrival-card.urgent { border-left-color: var(--urgent); }
+.arrival-card.urgent { background: color-mix(in srgb, var(--urgent) 6%, var(--surface)); }
+
+.card-main {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 0.75rem 0.85rem 1rem;
+  gap: 0.5rem;
+}
+
+.line-badge {
+  font-size: 1rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.arrival-time {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.arrival-card.urgent .arrival-time { color: var(--urgent); }
+.arrival-card.soon   .arrival-time { color: var(--soon); }
+
+.expand-btn {
+  margin-left: 0.4rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--brand);
+  min-width: 32px;
+  min-height: 32px;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.expand-btn:hover  { background: var(--border); }
+.expand-btn.open   { color: var(--brand-dark); transform: none; }
+
+/* ---- Progress panel ---- */
+
+.progress-panel {
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--brand) 4%, var(--surface));
+}
+
+.progress-header {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+.progress-stop-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* Vertical connector line between stops */
+.progress-stop-list::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  width: 2px;
+  background: var(--border);
+}
+
+.progress-stop {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.3rem 0;
+  position: relative;
+}
+
+.stop-dot {
+  font-size: 0.9rem;
+  width: 1.1rem;
+  text-align: center;
+  flex-shrink: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--brand) 4%, var(--surface));
+}
+
+.stop-name {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Current position */
+.progress-stop.current .stop-dot { color: var(--brand); }
+.progress-stop.current .stop-name {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Destination stop (our stop) */
+.progress-stop.destination .stop-dot { color: var(--ok); }
+.progress-stop.destination .stop-name {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.progress-loading { padding: 0.25rem 0; }
+
+/* ---- Utility ---- */
+
+.hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--urgent);
+  font-size: 0.9rem;
+}
+
+.no-arrivals {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+}

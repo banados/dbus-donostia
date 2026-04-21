@@ -1,0 +1,16 @@
+# Exclude exploration/planning scripts and prompt files
+aber.py
+pd.py
+*.md
+!README.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# macOS
+.DS_Store

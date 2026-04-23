@@ -363,15 +363,34 @@ class GTFSClient:
                 "is_destination": (s["stop_id"] == gtfs_stop_id),
             })
 
+        # Stops after the user's destination up to the end of the trip
+        stops_after = []
+        for s in seq[dest_idx + 1:]:
+            stop_info = self._stops.get(s["stop_id"], {})
+            stops_after.append({
+                "stop_id":   s["stop_id"],
+                "stop_name": stop_info.get("stop_name", s["stop_id"]),
+            })
+
+        # Final stop of the trip
+        last_s = seq[-1]
+        final_stop_name = self._stops.get(last_s["stop_id"], {}).get(
+            "stop_name", last_s["stop_id"]
+        )
+
         logger.info(
-            "line_progress: line=%s stop_id=%s (gtfs=%s) → trip=%s, %d stops ahead, best_diff=%ds",
-            line_name, stop_id, gtfs_stop_id, best_trip_id, len(result_stops), best_diff,
+            "line_progress: line=%s stop_id=%s (gtfs=%s) → trip=%s, %d stops ahead, "
+            "%d stops after, final=%s, best_diff=%ds",
+            line_name, stop_id, gtfs_stop_id, best_trip_id, len(result_stops),
+            len(stops_after), final_stop_name, best_diff,
         )
         return {
             "status":           "ok",
             "line_name":        line_name,
             "current_stop":     result_stops[0]["stop_name"] if result_stops else "?",
             "destination_stop": self._stops.get(gtfs_stop_id, {}).get("stop_name", stop_id),
+            "final_stop":       final_stop_name,
+            "stops_after":      stops_after,
             "stops":            result_stops,
         }
 

@@ -3,14 +3,10 @@
  *
  * - Fetches stop list from /api/stops on load.
  * - Polls /api/arrivals every 30 s when a stop is selected.
- * - Triggers browser notifications when a bus is ≤ 2 min away.
  * - Click a line card to see the bus's current position and upcoming stops.
  */
 
-const NOTIFICATION_THRESHOLD_MINUTES = 2;
 const POLL_INTERVAL_MS = 30_000;
-
-const notifiedBuses = new Set();
 
 let currentStopId = null;
 let currentStopName = null;
@@ -19,7 +15,7 @@ const stopNameToId = new Map();
 
 // DOM refs
 let stopInput, stopsList, stopStatus, arrivalsSection,
-    arrivalsTitle, arrivalsBoard, lastUpdated, notifyBtn, refreshDot;
+    arrivalsTitle, arrivalsBoard, lastUpdated, refreshDot;
 
 // ---------------------------------------------------------------------------
 // Initialisation
@@ -33,10 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   arrivalsTitle  = document.getElementById('arrivals-title');
   arrivalsBoard  = document.getElementById('arrivals-board');
   lastUpdated    = document.getElementById('last-updated');
-  notifyBtn      = document.getElementById('notify-btn');
   refreshDot     = document.getElementById('refresh-indicator');
 
-  notifyBtn.addEventListener('click', requestNotificationPermission);
   stopInput.addEventListener('change', onStopChanged);
   // Also handle 'input' for browsers that fire change only on blur
   stopInput.addEventListener('input', () => {
@@ -96,7 +90,6 @@ function onStopSelected(stopId, stopName) {
   if (stopId === currentStopId) return;
   currentStopId = stopId;
   currentStopName = stopName;
-  notifiedBuses.clear();
 
   arrivalsTitle.textContent = `Next buses at ${stopName}`;
   arrivalsSection.hidden = false;
@@ -120,7 +113,6 @@ async function fetchArrivals() {
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     renderArrivals(data);
-    checkNotifications(data.arrivals || []);
     lastUpdated.textContent = `Updated ${new Date().toLocaleTimeString()}`;
   } catch (err) {
     arrivalsBoard.innerHTML = `<p class="error">Error fetching arrivals: ${err.message}</p>`;
@@ -226,56 +218,42 @@ function renderProgressPanel(panel, data) {
     </li>`;
   }).join('');
 
+  const finalStop = data.final_stop || data.destination_stop;
+  const hasAfterStops = Array.isArray(data.stops_after) && data.stops_after.length > 0;
+
+  let afterStopsHtml = '';
+  if (hasAfterStops) {
+    const afterItems = data.stops_after.map((s, idx) => {
+      const isLast = idx === data.stops_after.length - 1;
+      return `<li class="progress-stop${isLast ? ' final' : ''}">
+        <span class="stop-dot">${isLast ? '■' : '○'}</span>
+        <span class="stop-name">${escapeHtml(s.stop_name)}</span>
+      </li>`;
+    }).join('');
+    afterStopsHtml = `
+      <button class="more-stops-btn" aria-label="Show stops after your stop" title="Stops after your stop">⋯</button>
+      <div class="after-stops-section" hidden>
+        <div class="progress-header after-stops-header">Stops after your stop</div>
+        <ul class="progress-stop-list after-stop-list">${afterItems}</ul>
+      </div>`;
+  }
+
   panel.innerHTML = `
-    <div class="progress-header">
-      <span>Line ${escapeHtml(data.line_name)} towards ${escapeHtml(data.destination_stop)}</span>
-    </div>
+    <div class="final-destination-badge">→ Final stop: ${escapeHtml(finalStop)}</div>
+    <div class="progress-header">Line ${escapeHtml(data.line_name)} · stops until yours</div>
     <ul class="progress-stop-list">${stopsHtml}</ul>
+    ${afterStopsHtml}
   `;
-}
 
-// ---------------------------------------------------------------------------
-// Notifications
-// ---------------------------------------------------------------------------
-
-async function requestNotificationPermission() {
-  if (!('Notification' in window)) {
-    alert('This browser does not support notifications.');
-    return;
-  }
-  const permission = await Notification.requestPermission();
-  if (permission === 'granted') {
-    notifyBtn.textContent = '🔔';
-    notifyBtn.title = 'Notifications enabled';
-  } else {
-    notifyBtn.textContent = '🔕';
-    notifyBtn.title = 'Notifications blocked';
-  }
-}
-
-function checkNotifications(arrivals) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-
-  // Clean up notified buses that are no longer in the list (they departed)
-  const currentKeys = new Set(
-    arrivals.map((a) => `${currentStopId}|${a.line_name}`)
-  );
-  for (const key of notifiedBuses) {
-    if (!currentKeys.has(key)) notifiedBuses.delete(key);
-  }
-
-  for (const arrival of arrivals) {
-    if (arrival.minutes_away > NOTIFICATION_THRESHOLD_MINUTES) continue;
-    const key = `${currentStopId}|${arrival.line_name}`;
-    if (notifiedBuses.has(key)) continue; // already notified for this bus
-
-    notifiedBuses.add(key);
-    const mins = arrival.minutes_away;
-    const body = mins <= 0
-      ? `Line ${arrival.line_name} is arriving NOW at ${currentStopName}`
-      : `Line ${arrival.line_name} arrives in ${mins} min at ${currentStopName}`;
-
-    new Notification('🚌 Bus arriving soon', { body, icon: '/icon-192.png' });
+  if (hasAfterStops) {
+    const moreBtn = panel.querySelector('.more-stops-btn');
+    const afterSection = panel.querySelector('.after-stops-section');
+    moreBtn.addEventListener('click', () => {
+      const isOpen = !afterSection.hidden;
+      afterSection.hidden = isOpen;
+      moreBtn.textContent = isOpen ? '⋯' : '✕';
+      moreBtn.classList.toggle('open', !isOpen);
+    });
   }
 }
 

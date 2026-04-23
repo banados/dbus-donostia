@@ -115,22 +115,6 @@ main {
   border-color: var(--brand);
 }
 
-#notify-btn {
-  padding: 0 0.9rem;
-  font-size: 1.4rem;
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  cursor: pointer;
-  min-height: 48px;
-  min-width: 48px;
-  transition: background 0.15s;
-}
-
-#notify-btn:hover {
-  background: var(--border);
-}
-
 /* ---- Arrivals section ---- */
 
 .arrivals-section {
@@ -301,6 +285,58 @@ main {
 .progress-stop.destination .stop-name {
   color: var(--ok);
   font-weight: 700;
+}
+
+/* Final stop in after-stops list */
+.progress-stop.final .stop-dot { color: var(--brand); }
+.progress-stop.final .stop-name {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Final destination badge */
+.final-destination-badge {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  margin-bottom: 0.65rem;
+  display: inline-block;
+}
+
+/* "⋯" more-stops toggle button */
+.more-stops-btn {
+  display: inline-block;
+  margin-top: 0.55rem;
+  padding: 0.2rem 0.65rem;
+  font-size: 1rem;
+  font-weight: 700;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.4;
+}
+
+.more-stops-btn:hover { background: var(--border); }
+.more-stops-btn.open  { color: var(--text); }
+
+/* After-stops section */
+.after-stops-section {
+  margin-top: 0.5rem;
+}
+
+.after-stops-header {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.after-stop-list {
+  margin-top: 0;
 }
 
 .progress-loading { padding: 0.25rem 0; }

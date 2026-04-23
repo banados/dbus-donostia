@@ -2,7 +2,13 @@
 
 A Progressive Web App (PWA) that shows real-time bus arrival times for Donostiako Autobusen Zerbitzua (DBus) stops in San Sebastián / Donostia.
 
-**Original/Inspiration Code:** Written by Diego Lauer. Transformed into a working app/code during the "AI Tools for Research Workshop" at DIPC.
+## Live App
+
+Access the app directly in your browser — no installation needed:
+
+👉 https://dbus-donostia.onrender.com/
+
+**Original/Inspiration Code:** Written by [Diego Lauer](https://www.diegolauer.com/]. Transformed into a working app/code during the "AI Tools for Research Workshop" at DIPC.
 
 ## Features
 

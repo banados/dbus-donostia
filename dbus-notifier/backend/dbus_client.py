@@ -108,9 +108,11 @@ class GTFSClient:
                 for row in reader:
                     sid = row["stop_id"].strip()
                     self._stops[sid] = {
-                        "stop_id": sid,
+                        "stop_id":   sid,
                         "stop_name": row.get("stop_name", "").strip(),
                         "stop_code": row.get("stop_code", "").strip(),
+                        "stop_lat":  float(row.get("stop_lat", 0) or 0),
+                        "stop_lon":  float(row.get("stop_lon", 0) or 0),
                     }
             logger.info("Loaded %d stops from GTFS", len(self._stops))
 

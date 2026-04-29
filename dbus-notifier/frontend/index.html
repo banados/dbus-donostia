@@ -22,12 +22,19 @@
 <body>
   <header>
     <h1>🚌 DBus Donostia</h1>
-    <p class="subtitle">Real-time bus arrivals</p>
+    <p class="subtitle" data-i18n="subtitle">Real-time bus arrivals</p>
+    <div class="lang-toggle" id="lang-toggle">
+      <button data-lang="es">🇪🇸 ES</button>
+      <span>|</span>
+      <button data-lang="eu"><img src="/icons/basque-flag.svg" class="lang-flag" alt="Basque flag"> EU</button>
+      <span>|</span>
+      <button data-lang="en">🇬🇧 EN</button>
+    </div>
   </header>
 
   <main>
     <section class="stop-selector">
-      <label for="stop-input">Bus stop</label>
+      <label for="stop-input" data-i18n="stopLabel">Bus stop</label>
       <div class="input-row">
         <input
           id="stop-input"

@@ -97,6 +97,11 @@ async def api_line_progress(
 # ------------------------------------------------------------------
 
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+STATIC_DIR   = Path(__file__).parent / "static"
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+    logger.info("Serving backend static assets from %s", STATIC_DIR)
 
 if FRONTEND_DIR.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

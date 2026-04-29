@@ -12,10 +12,12 @@ let currentStopId = null;
 let currentStopName = null;
 let pollTimer = null;
 const stopNameToId = new Map();
+let stopsCache = [];  // full stop objects with lat/lon for nearest-stop search
 
 // DOM refs
 let stopInput, stopsList, stopStatus, arrivalsSection,
-    arrivalsTitle, arrivalsBoard, lastUpdated, refreshDot;
+    arrivalsTitle, arrivalsBoard, lastUpdated, refreshDot,
+    locateBtn, nearestStopsDiv;
 
 // ---------------------------------------------------------------------------
 // Initialisation
@@ -30,6 +32,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   arrivalsBoard  = document.getElementById('arrivals-board');
   lastUpdated    = document.getElementById('last-updated');
   refreshDot     = document.getElementById('refresh-indicator');
+
+  locateBtn       = document.getElementById('locate-btn');
+  nearestStopsDiv = document.getElementById('nearest-stops');
+  locateBtn.addEventListener('click', onLocate);
 
   stopInput.addEventListener('change', onStopChanged);
   // Also handle 'input' for browsers that fire change only on blur
@@ -63,6 +69,7 @@ async function loadStops() {
 }
 
 function populateDatalist(stops) {
+  stopsCache = stops;
   stopsList.innerHTML = '';
   stopNameToId.clear();
   for (const stop of stops) {
@@ -255,6 +262,96 @@ function renderProgressPanel(panel, data) {
       moreBtn.classList.toggle('open', !isOpen);
     });
   }
+}
+
+// ---------------------------------------------------------------------------
+// Nearest stops (geolocation)
+// ---------------------------------------------------------------------------
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6_371_000; // Earth radius in metres
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+async function onLocate() {
+  if (!navigator.geolocation) {
+    showNearestMsg('Geolocation is not supported by this browser.');
+    return;
+  }
+
+  locateBtn.disabled = true;
+  locateBtn.textContent = '⏳ Locating…';
+  nearestStopsDiv.hidden = false;
+  nearestStopsDiv.innerHTML = '<p class="hint">Finding your location…</p>';
+
+  try {
+    const pos = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 10_000,
+      })
+    );
+
+    if (stopsCache.length === 0) {
+      showNearestMsg('Stops not loaded yet — please wait a moment and try again.');
+      return;
+    }
+
+    const { latitude, longitude } = pos.coords;
+    const nearest = stopsCache
+      .filter((s) => s.stop_lat && s.stop_lon)
+      .map((s) => ({ ...s, dist: haversine(latitude, longitude, +s.stop_lat, +s.stop_lon) }))
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 5);
+
+    renderNearestStops(nearest);
+  } catch (err) {
+    const msgs = {
+      1: 'Location access denied. Use the search above to find your stop.',
+      2: 'Your location is currently unavailable. Try again or search above.',
+      3: 'Location request timed out. Try again or search above.',
+    };
+    showNearestMsg(msgs[err.code] ?? `Location error: ${err.message}`);
+  } finally {
+    locateBtn.disabled = false;
+    locateBtn.textContent = '📍 Find nearest stops';
+  }
+}
+
+function renderNearestStops(stops) {
+  const items = stops.map((s) => {
+    const dist = s.dist < 1000
+      ? `${Math.round(s.dist)} m`
+      : `${(s.dist / 1000).toFixed(1)} km`;
+    return `<button class="nearest-stop-btn"
+        data-id="${escapeHtml(s.stop_id)}"
+        data-name="${escapeHtml(s.stop_name)}">
+      <span>${escapeHtml(s.stop_name)}</span>
+      <span class="stop-dist">${dist}</span>
+    </button>`;
+  }).join('');
+
+  nearestStopsDiv.innerHTML =
+    `<p class="hint" style="margin-bottom:0.35rem">Nearest stops:</p>` +
+    `<div class="nearest-stops">${items}</div>`;
+
+  nearestStopsDiv.querySelectorAll('.nearest-stop-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      stopInput.value = btn.dataset.name;
+      onStopSelected(btn.dataset.id, btn.dataset.name);
+    });
+  });
+}
+
+function showNearestMsg(msg) {
+  nearestStopsDiv.hidden = false;
+  nearestStopsDiv.innerHTML = `<p class="hint">${escapeHtml(msg)}</p>`;
 }
 
 // ---------------------------------------------------------------------------

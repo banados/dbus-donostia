@@ -154,6 +154,70 @@ main {
   50%       { transform: scale(1.5); opacity: 0.5; }
 }
 
+/* ---- Locate button ---- */
+
+.locate-btn {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--brand);
+  background: transparent;
+  border: 1.5px solid var(--brand);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  min-height: 44px;
+}
+
+.locate-btn:hover {
+  background: color-mix(in srgb, var(--brand) 8%, transparent);
+}
+
+.locate-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- Nearest stops results ---- */
+
+.nearest-stops {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.nearest-stop-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.9rem;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  min-height: 44px;
+}
+
+.nearest-stop-btn:hover {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 4%, var(--bg));
+}
+
+.nearest-stop-btn .stop-dist {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
 /* ---- Arrival cards ---- */
 
 #arrivals-board {

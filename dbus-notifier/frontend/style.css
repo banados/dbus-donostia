@@ -46,18 +46,32 @@ body {
 header {
   background: var(--brand);
   color: #fff;
-  padding: 1.25rem 1rem 1rem;
+  padding: 0.75rem 1rem 0.9rem;
   text-align: center;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .lang-toggle {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.65rem;
   display: flex;
   align-items: center;
   gap: 0.15rem;
+}
+
+@media (min-width: 480px) {
+  header {
+    display: block;
+    padding: 1.25rem 1rem 1rem;
+    position: relative;
+  }
+
+  .lang-toggle {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.65rem;
+  }
 }
 
 .lang-toggle span {

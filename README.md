@@ -13,6 +13,19 @@ A Progressive Web App for real-time bus arrival times at DBus stops in San Sebas
 - 📱 Installable as a home screen app on iPhone (PWA)
 - 🛣️ Tap any arriving bus to see its current position and the stops between it and yours
 
+### Installing as a home screen app (iPhone)
+
+1. Open the app in Safari
+2. Tap the Share button (the square with an arrow pointing up)
+3. Scroll down and tap "Add to Home Screen"
+4. Give it a name and tap "Add"
+
+The app will appear on your home screen like a native app, 
+with no browser chrome and its own icon.
+
+> Note: this only works in Safari on iPhone — Chrome and other 
+> browsers on iOS do not support PWA installation.
+
 ## How it works
 
 The FastAPI backend fetches real-time arrival data from dbus.eus and static route/stop data from the official GTFS feed published by the Basque Government. The frontend is pure HTML/CSS/JS, served directly by the backend — no separate hosting or build step needed.

@@ -44,6 +44,7 @@ const STRINGS = {
     locUnavail:    'Tu ubicación no está disponible ahora. Inténtalo de nuevo o usa la búsqueda.',
     locTimeout:    'Tiempo de espera agotado. Inténtalo de nuevo o usa la búsqueda.',
     locNoSupport:  'La geolocalización no está disponible en este navegador.',
+    aboutLink:     'ℹ️ Acerca de y aviso legal',
   },
   eu: {
     subtitle:      'Autobus iristeak denbora errealean',
@@ -78,6 +79,7 @@ const STRINGS = {
     locUnavail:    'Zure kokapena ez dago eskuragarri. Saiatu berriro edo erabili bilaketa.',
     locTimeout:    'Kokapen eskaeraren denbora-muga gainditu da. Saiatu berriro.',
     locNoSupport:  'Geolokalizazioa ez dago onartuta nabigatzaile honetan.',
+    aboutLink:     'ℹ️ Aplikazioari buruz eta oharra',
   },
   en: {
     subtitle:      'Real-time bus arrivals',
@@ -112,6 +114,7 @@ const STRINGS = {
     locUnavail:    'Your location is currently unavailable. Try again or search above.',
     locTimeout:    'Location request timed out. Try again or search above.',
     locNoSupport:  'Geolocation is not supported by this browser.',
+    aboutLink:     'ℹ️ About & disclaimer',
   },
 };
 
@@ -210,6 +213,10 @@ function applyLang() {
   if (currentStopId) {
     arrivalsTitle.textContent = t('nextBuses', { stop: currentStopName });
   }
+
+  // Footer about link
+  const footerAbout = document.getElementById('footer-about');
+  if (footerAbout) footerAbout.textContent = t('aboutLink');
 
   // Re-render arrivals board with updated labels
   if (lastArrivalsData) renderArrivals(lastArrivalsData);

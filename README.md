@@ -9,7 +9,7 @@ A Progressive Web App for real-time bus arrival times at DBus stops in San Sebas
 - 🚌 Real-time arrivals for any stop, refreshed every 30 seconds
 - 📍 "Find nearest stops" — shares your location and shows the 5 closest stops with distances
 - 🗺️ Google Maps link for each nearby stop
-- 🌐 ES / EU / EN language toggle (defaults to Spanish)
+- 🌐 ES / EU / EN language toggle (defaults to Spanish). Machine translations (from English) by Claude (Anthropic)
 - 📱 Installable as a home screen app on iPhone (PWA)
 - 🛣️ Tap any arriving bus to see its current position and the stops between it and yours
 

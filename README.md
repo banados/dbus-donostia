@@ -30,6 +30,10 @@ with no browser chrome and its own icon.
 
 The FastAPI backend fetches real-time arrival data from dbus.eus and static route/stop data from the official GTFS feed published by the Basque Government. The frontend is pure HTML/CSS/JS, served directly by the backend — no separate hosting or build step needed.
 
+The arrivals parser is resilient to the two known dbus.eus formats:
+- Relative times (for example, `2 min`)
+- Absolute clock times (for example, `19:31`), converted to minutes away
+
 **API endpoints**
 
 | Endpoint | Description |
@@ -48,6 +52,14 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir dbus-notifier/backend
 ```
 
 Then open [http://localhost:8000](http://localhost:8000).
+
+### Regression tests
+
+Run parser regression tests (legacy and new upstream formats):
+
+```bash
+python -m unittest discover -s dbus-notifier/backend/tests -v
+```
 
 ## Built with
 

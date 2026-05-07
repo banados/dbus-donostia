@@ -215,10 +215,22 @@ class GTFSClient:
         """
         Parse the calcula_parada_single HTML fragment for arrival lines.
 
-        Expected format per bus:
-            <li> Linea 26:  "Boulevard": 2 min.</li>
+        Supported formats per bus:
+            <li> Linea 26: "Boulevard": 2 min.</li>
+            <li> Linea 26: "Boulevard": 19:31</li>
         """
         arrivals = []
+        now = datetime.now()
+        now_mins = now.hour * 60 + now.minute
+
+        seen: set[tuple[str, int]] = set()
+
+        def _add(line_name: str, minutes_away: int) -> None:
+            key = (line_name, minutes_away)
+            if key in seen:
+                return
+            seen.add(key)
+            arrivals.append({"line_name": line_name, "minutes_away": minutes_away})
 
         # Two-colon pattern: "Linea X: <destination>: N min"
         for m in re.finditer(
@@ -227,7 +239,22 @@ class GTFSClient:
             re.IGNORECASE,
         ):
             line_name = m.group(1).rstrip(":")
-            arrivals.append({"line_name": line_name, "minutes_away": int(m.group(2))})
+            _add(line_name, int(m.group(2)))
+
+        # Alternate format now used by dbus.eus: "Linea X: <destination>: HH:MM"
+        for m in re.finditer(
+            r'Linea\s+([^\s:]+)\s*:[^:]+:\s*([01]?\d|2[0-3]):([0-5]\d)\b',
+            html,
+            re.IGNORECASE,
+        ):
+            line_name = m.group(1).rstrip(":")
+            h = int(m.group(2))
+            minute = int(m.group(3))
+            target_mins = h * 60 + minute
+            delta = target_mins - now_mins
+            if delta < 0:
+                delta += 24 * 60
+            _add(line_name, delta)
 
         # "Arriving now" variants
         for m in re.finditer(
@@ -236,8 +263,7 @@ class GTFSClient:
             re.IGNORECASE,
         ):
             line_name = m.group(1).rstrip(":")
-            if not any(a["line_name"] == line_name for a in arrivals):
-                arrivals.append({"line_name": line_name, "minutes_away": 0})
+            _add(line_name, 0)
 
         arrivals.sort(key=lambda a: a["minutes_away"])
         return arrivals[:MAX_ARRIVALS]
@@ -475,6 +501,14 @@ class GTFSClient:
         # 4. Parse HTML fragment
         arrivals = self._parse_arrivals_html(r.text)
         logger.info("Parsed %d arrivals for stop_id=%s: %s", len(arrivals), stop_id, arrivals)
+
+        if not arrivals and re.search(r"Linea\s+[^\s:]+\s*:", r.text, re.IGNORECASE):
+            # Upstream returned line rows but none matched our parser.
+            return {
+                "status": "parse_mismatch",
+                "error": "Upstream arrivals format changed",
+                "arrivals": [],
+            }
 
         status = "ok" if arrivals else "no_arrivals"
         return {"status": status, "arrivals": arrivals}

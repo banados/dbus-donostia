@@ -1,27 +1,25 @@
-import unittest
-from datetime import datetime as real_datetime
-from pathlib import Path
 import sys
+import unittest
+from datetime import datetime
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import dbus_client
 
 
-class _FrozenDateTime(real_datetime):
-    @classmethod
-    def now(cls):
-        # Fixed local time for deterministic minutes_away calculations.
-        return cls(2026, 5, 7, 19, 25, 0)
+def _frozen_service_now() -> datetime:
+    # Fixed local Donostia time for deterministic minutes_away calculations.
+    return datetime(2026, 5, 7, 19, 25, 0)
 
 
 class TestParseArrivalsHtml(unittest.TestCase):
     def setUp(self):
-        self._orig_datetime = dbus_client.datetime
-        dbus_client.datetime = _FrozenDateTime
+        self._orig_service_now = dbus_client._service_now
+        dbus_client._service_now = _frozen_service_now
 
     def tearDown(self):
-        dbus_client.datetime = self._orig_datetime
+        dbus_client._service_now = self._orig_service_now
 
     def test_parses_legacy_minutes_format(self):
         html = (

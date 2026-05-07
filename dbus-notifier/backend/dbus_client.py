@@ -25,7 +25,12 @@ import logging
 import re
 import time
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
+
+try:
+    from zoneinfo import ZoneInfo
+except Exception:  # pragma: no cover - fallback only for minimal runtimes
+    ZoneInfo = None
 
 import requests
 
@@ -49,6 +54,19 @@ _BROWSER_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,*/*",
     "Accept-Language": "es-ES,es;q=0.9",
 }
+
+if ZoneInfo is not None:
+    try:
+        SERVICE_TZ = ZoneInfo("Europe/Madrid")
+    except Exception:
+        SERVICE_TZ = timezone.utc
+else:
+    SERVICE_TZ = timezone.utc
+
+
+def _service_now() -> datetime:
+    """Current time in DBus service timezone (Donostia / Europe-Madrid)."""
+    return datetime.now(SERVICE_TZ)
 
 
 class GTFSClient:
@@ -220,7 +238,7 @@ class GTFSClient:
             <li> Linea 26: "Boulevard": 19:31</li>
         """
         arrivals = []
-        now = datetime.now()
+        now = _service_now()
         now_mins = now.hour * 60 + now.minute
 
         seen: set[tuple[str, int]] = set()
@@ -340,7 +358,7 @@ class GTFSClient:
         if not route_ids:
             return {"status": "route_not_found", "line_name": line_name, "stops": []}
 
-        now = datetime.now()
+        now = _service_now()
         now_secs = now.hour * 3600 + now.minute * 60 + now.second
         arrival_secs_est = now_secs + minutes_away * 60
         TOLERANCE = 30 * 60  # 30 minutes
@@ -448,7 +466,7 @@ class GTFSClient:
             return {"status": "stop_page_error", "error": str(exc), "arrivals": []}
 
         # 3. POST calcula_parada_single
-        now = datetime.now()
+        now = _service_now()
         data = {
             "action":   "calcula_parada_single",
             "security": nonce,

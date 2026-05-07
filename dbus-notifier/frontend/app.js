@@ -24,6 +24,7 @@ const STRINGS = {
     loading:       'Cargando…',
     fetchError:    'Error al obtener llegadas: {e}',
     noBuses:       'No hay autobuses activos ahora mismo.',
+    dataTempIssue: 'Los datos en tiempo real no están disponibles temporalmente. Inténtalo de nuevo en breve.',
     updatedAt:     'Actualizado a las {time}',
     now:           'Ahora',
     min1:          '1 min',
@@ -59,6 +60,7 @@ const STRINGS = {
     loading:       'Kargatzen…',
     fetchError:    'Errorea iristeak lortzean: {e}',
     noBuses:       'Ez dago autobus aktiborik orain.',
+    dataTempIssue: 'Denbora errealeko datuak aldi baterako ez daude erabilgarri. Saiatu berriro laster.',
     updatedAt:     '{time}etan eguneratua',
     now:           'Orain',
     min1:          '1 min',
@@ -94,6 +96,7 @@ const STRINGS = {
     loading:       'Loading…',
     fetchError:    'Error fetching arrivals: {e}',
     noBuses:       'No active buses right now.',
+    dataTempIssue: 'Real-time data is temporarily unavailable. Please try again shortly.',
     updatedAt:     'Updated {time}',
     now:           'Now',
     min1:          '1 min',
@@ -309,11 +312,11 @@ async function fetchArrivals() {
 function renderArrivals(data) {
   lastArrivalsData = data;
 
-  if (data.status === 'feed_error') {
-    arrivalsBoard.innerHTML = `<p class="error">Feed error: ${data.error}</p>`;
+  if (data.status && data.status !== 'ok' && data.status !== 'no_arrivals') {
+    arrivalsBoard.innerHTML = `<p class="error">${t('dataTempIssue')}</p>`;
     return;
   }
-  if (data.status === 'no_data' || !data.arrivals || data.arrivals.length === 0) {
+  if (!data.arrivals || data.arrivals.length === 0) {
     arrivalsBoard.innerHTML = `<p class="no-arrivals">${t('noBuses')}</p>`;
     return;
   }
